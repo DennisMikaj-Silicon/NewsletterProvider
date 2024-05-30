@@ -34,7 +34,7 @@ namespace NewsletterProvider.Functions
 
 					_context.Subscribers.Add(subscribeEntity);
 					await _context.SaveChangesAsync();
-					return new OkObjectResult(new { Status = 200, Message = "Subscriber has been added" });
+					return new OkObjectResult(new { Status = 201, Message = "Subscriber has been added" });
 				}
 			}
 			return new BadRequestObjectResult(new { Status = 400, Message = "Unable to subscribe, try again later." });
