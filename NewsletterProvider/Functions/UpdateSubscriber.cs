@@ -1,4 +1,5 @@
 using Data.Contexts;
+using Data.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -14,7 +15,7 @@ namespace NewsletterProvider.Functions
         private readonly DataContext _dataContext = dataContext;
 
         [Function("UpdateSubscriber")]
-        public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Function, "put", Route = "subscribers/{email}")] HttpRequest req, string email)
+        public async Task<IActionResult> RunAsync([HttpTrigger(AuthorizationLevel.Function, "put", "get", "post", Route = "subscribers/{email}")] HttpRequest req, string email)
         {
             _logger.LogInformation("UpdateUser function processed a request.");
 
@@ -44,14 +45,24 @@ namespace NewsletterProvider.Functions
                 return new NotFoundResult();
             }
 
-            subscriber.Email = updateSubscriberModel.Email;
+            //subscriber.Email = updateSubscriberModel.Email;
+            //subscriber.IsSubscribed = updateSubscriberModel.SubscribeToNewsletter;
             
 
             try
             {
-                _dataContext.Subscribers.Update(subscriber);
+                _dataContext.Subscribers.Remove(subscriber);
                 await _dataContext.SaveChangesAsync();
-                return new OkObjectResult(subscriber);
+
+                var newSubscriber = new SubscribeEntity
+                {
+                    Email = updateSubscriberModel.Email,
+                    IsSubscribed = updateSubscriberModel.SubscribeToNewsletter,
+                };
+
+                _dataContext.Subscribers.Add(newSubscriber);
+                await _dataContext.SaveChangesAsync();
+                return new OkObjectResult(newSubscriber);
             }
             catch (Exception ex)
             {
@@ -63,6 +74,7 @@ namespace NewsletterProvider.Functions
         public class UpdateSubscriberModel
         {
             public string Email { get; set; }
+            public bool SubscribeToNewsletter { get; set; }
         }
     }
     
