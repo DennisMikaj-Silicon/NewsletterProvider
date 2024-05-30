@@ -43,11 +43,7 @@ namespace NewsletterProvider.Functions
             if (subscriber == null)
             {
                 return new NotFoundResult();
-            }
-
-            //subscriber.Email = updateSubscriberModel.Email;
-            //subscriber.IsSubscribed = updateSubscriberModel.SubscribeToNewsletter;
-            
+            }        
 
             try
             {
